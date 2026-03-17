@@ -1,10 +1,11 @@
 # Coopain
 
-**Mission 1 – Gestion des demandes d’insémination**
+## **Mission 1 – Gestion des demandes d'insémination**
 
-**Question 1.1 :** Déduire de la requête SQL fournie dans le dossier documentaire (**Document 2**), la règle de gestion utilisée par Coopain pour choisir une paillette lors d’une demande d’insémination.
+### **Question 1.1 :** Déduire de la requête SQL fournie dans le dossier documentaire (**Document 2**), la règle de gestion utilisée par Coopain pour choisir une paillette lors d’une demande d’insémination.
 
-```sql
+[source,sql]
+----
 SELECT date, numero
 FROM Lot
 WHERE idNationalTaureau = 'FR0103015562'
@@ -16,14 +17,9 @@ AND date = (
     AND idTypePaillette = 3
     AND stockRestant >= 1
 );
+----
 
-```
-
-## **Mission 1 – Gestion des demandes d'insémination**
-
-### **Question 1.1 :** Déduire de la requête SQL fournie dans le dossier documentaire (**Document 2**), la règle de gestion utilisée par Coopain pour choisir une paillette lors d’une demande d’insémination.
-
-Le gestionnaire choisit une paillette en cherchant dans le stock disponible (`stockRestant >= 1`) celle dont la date de collecte est **la plus ancienne** (`MIN(date)`).
+Le gestionnaire choisit une paillette en cherchant dans le stock disponible (`stockRestant >= 1`) celle dont la date de collecte est *la plus ancienne* (`MIN(date)`).
 
 ### **Question 1.2 :** Indiquer pour chaque information à imprimer sur une paillette (**Document 3**), la ou les données nécessaires en précisant pour chacune d’où elle provient dans le schéma existant et si elle nécessite une transformation.
 
@@ -57,9 +53,8 @@ ORDER BY stock_totalASC;
 
 ### **Question 1.5 :** Présenter le schéma de données nécessaire à la gestion des demandes d’insémination en reprenant les éléments nécessaires du modèle existant.
 
-![image.png](attachment:8196a003-cf10-486d-a61e-546bf3c58426:image.png)
-
-```
+[plantuml, diagramme-classes-coopain, png]
+----
 @startuml
 skinparam classAttributeIconSize 0
 skinparam roundcorner 5
@@ -142,7 +137,7 @@ Insemination "*" -up- "1" Inseminateur : realisee par >
 Insemination "*" -down- "1" Paillette : utilise physiquement >
 
 @enduml
-```
+----
 
 ## **Mission 2 – MobiSemin (Android et Sécurité)**
 
