@@ -56,4 +56,24 @@ public class TourneeController {
             lblMessage.setText("Le nombre d'actes doit être un entier positif.");
         }
     }
+
+    // MISSION 5.3 Nouvelle Tournée
+    @FXML
+    public void handleNouvelleTournee() {
+        // 1. Réinitialisation Métier
+        gestionTournee = new GestionTournee(new Tournee());
+        visiteCourante = new Visite();
+        gestionTournee.ajouterVisite(visiteCourante);
+
+        // 2. Réinitialisation Graphique
+        lblTotal.setText("CA Total de la tournée : 0.0 €");
+        txtHistorique.clear();
+        lblMessage.setText("");
+        txtNbActes.setText("1");
+        
+        // Optionnel : on peut replacer la sélection par défaut sur la combobox
+        if (!comboPrestations.getItems().isEmpty()) {
+            comboPrestations.getSelectionModel().selectFirst();
+        }
+    }
 }

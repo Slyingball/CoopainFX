@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- Connexion JDBC MySQL -->
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/coopain?serverTimezone=UTC</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password"></property>
+
+        <!-- Paramètres Hibernate -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hibernate.show_sql">true</property>
+        <!-- Permet à Hibernate de créer/mettre à jour la table TypePrestation automatiquement si on le souhaite
+             <property name="hibernate.hbm2ddl.auto">update</property> 
+        -->
+
+        <!-- Liens vers les classes annotées (@Entity) -->
+        <mapping class="coopain.modele.TypePrestation"/>
+    </session-factory>
+</hibernate-configuration>
