@@ -61,4 +61,3 @@ mvn test
 # Pour lancer l'application (Interface JavaFX experte)
 mvn javafx:run
 ```
-*(Vous pouvez également importer directement ce projet Maven dans votre IDE favori comme IntelliJ IDEA ou Eclipse et lancer la classe `Launcher.java`)*.
