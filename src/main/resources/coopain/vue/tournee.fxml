@@ -23,7 +23,7 @@
     <Separator />
 
     <Label text="Historique des actes :" style="-fx-font-weight: bold;" />
-    <!--  MISSION 5 : Ajout du TextAreaour tracer les opé prations visuellement -->
+    <!--  MISSION 5 : Ajout du TextAreaour tracer les opérations visuellement -->
     <TextArea fx:id="txtHistorique" editable="false" prefHeight="100" promptText="Aucun acte saisi pour le moment..." />
     
     <Separator />
@@ -32,6 +32,6 @@
     <Label fx:id="lblTotal" text="CA Total de la tournée : 0.0 €" style="-fx-font-size: 16px; -fx-text-fill: #007bff;" />
     <Label fx:id="lblMessage" textFill="red" />
 
-    <!-- MISSION 5.3 : Bouton de réinitialisation de la tournée -->
+    <!-- MISSION 5.3 : Bouton de réinitialisation de la tournée :) -->
     <Button text="Nouvelle Tournée" onAction="#handleNouvelleTournee" style="-fx-background-color: #dc3545; -fx-text-fill: white;" />
 </VBox>

@@ -9,7 +9,7 @@ public class Visite {
         lesPrestationsVisite.add(new PrestationVisite(unTypePrestation, unNombreActes));
     }
 
-    // Réponse technique : Question 3.1.4
+    // Réponse : Question 3.1.4
     public float montantAFacturer() {
         float total = 0;
         for (PrestationVisite pv : lesPrestationsVisite) {

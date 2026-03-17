@@ -1,0 +1,236 @@
+# Coopain
+
+**Mission 1 – Gestion des demandes d’insémination**
+
+**Question 1.1 :** Déduire de la requête SQL fournie dans le dossier documentaire (**Document 2**), la règle de gestion utilisée par Coopain pour choisir une paillette lors d’une demande d’insémination.
+
+```sql
+SELECT date, numero
+FROM Lot
+WHERE idNationalTaureau = 'FR0103015562'
+AND idTypePaillette = 3
+AND date = (
+    SELECT MIN(date)
+    FROM Lot
+    WHERE idNationalTaureau = 'FR0103015562'
+    AND idTypePaillette = 3
+    AND stockRestant >= 1
+);
+
+```
+
+## **Mission 1 – Gestion des demandes d'insémination**
+
+### **Question 1.1 :** Déduire de la requête SQL fournie dans le dossier documentaire (**Document 2**), la règle de gestion utilisée par Coopain pour choisir une paillette lors d’une demande d’insémination.
+
+Le gestionnaire choisit une paillette en cherchant dans le stock disponible (`stockRestant >= 1`) celle dont la date de collecte est **la plus ancienne** (`MIN(date)`).
+
+### **Question 1.2 :** Indiquer pour chaque information à imprimer sur une paillette (**Document 3**), la ou les données nécessaires en précisant pour chacune d’où elle provient dans le schéma existant et si elle nécessite une transformation.
+
+- **Date collecte (AAJJJ)** : Provient de `Collecte.date`. *Transformation* : Formatage de la date en "Année sur 2 caractères + Quantième du jour".
+- **N° agrément CCS** : Constante de l'entreprise (non stockée en base). *Transformation* : Aucune.
+- **N° national taureau** : `Taureau.idNational`. *Transformation* : Aucune.
+- **N° IE du taureau** : `Taureau.numeroIE`. *Transformation* : Aucune.
+- **Quantième date de collecte** : Calculé à partir de `Collecte.date`. *Transformation* : Calcul du nb de jours écoulés depuis le 01/01/2002.
+- **Numéro de lot** : `Lot.numero`. *Transformation* : Aucune.
+- **Code race** : `Race.code` (via jointure Taureau). *Transformation* : Aucune.
+- **Nom du taureau** : `Taureau.nom`. *Transformation* : Mise en majuscules et en gras.
+
+### **Question 1.3 :** Écrire la requête permettant d’obtenir pour le taureau FR0103015562 les tarifs des types de paillette (libellé du type de paillette, prix de la paillette).
+
+```sql
+SELECT tp.libelle, t.prixPaillette
+FROM TypePaillette tp
+JOIN Tarif tON tp.id= t.idTypePaillette
+WHERE t.idNationalTaureau='FR0103015562';
+```
+
+### **Question 1.4 :** Écrire la requête permettant d’obtenir la liste des taureaux (identifiant national, nom, stock total restant de paillettes), le tout trié de façon croissante par stock total restant.
+
+```sql
+SELECT t.idNational, t.nom,SUM(l.stockRestant)AS stock_total
+FROM Taureau t
+LEFT JOIN Lot lON t.idNational= l.idNationalTaureau
+GROUP BY t.idNational, t.nom
+ORDER BY stock_totalASC;
+```
+
+### **Question 1.5 :** Présenter le schéma de données nécessaire à la gestion des demandes d’insémination en reprenant les éléments nécessaires du modèle existant.
+
+![image.png](attachment:8196a003-cf10-486d-a61e-546bf3c58426:image.png)
+
+```
+@startuml
+skinparam classAttributeIconSize 0
+skinparam roundcorner 5
+skinparam class {
+  BackgroundColor White
+  ArrowColor #2c3e50
+  BorderColor #2c3e50
+}
+
+abstract class Personne {
+  - nom : String
+  - prenom : String
+  - telPortable : String
+}
+
+class Adherent {
+  - latitude : String
+  - longitude : String
+}
+
+class Inseminateur {
+  - numeroLicence : String
+  - login : String
+  - password : String
+}
+
+class Secteur {
+  - nom : String
+  - description : String
+}
+
+class Vehicule {
+  - immatriculation : String
+  - marque : String
+  - modele : String
+  - dateAchat : Date
+}
+
+class Vache {
+  - numeroNational : String
+  - nom : String
+}
+
+class Demande {
+  - dateDemande : Date
+}
+
+class Insemination {
+  - dateHeure : DateTime
+  - temperatureAmbiante : Float
+  - compteRendu : String
+}
+
+class Paillette {
+  - numeroDose : String
+}
+
+' Héritages
+Personne <|-- Adherent
+Personne <|-- Inseminateur
+
+' Associations Secteur
+Secteur "1" -down- "*" Adherent : regroupe >
+Secteur "1" -down- "*" Inseminateur : est affecte a <
+
+' Association Véhicule / Inséminateur (Le véhicule peut être partagé)
+Vehicule "1" -down- "*" Inseminateur : est equipe par <
+
+' Association Adhérent / Vache
+Adherent "1" -down- "*" Vache : possede >
+
+' Création de la Demande par l'adhérent pour une vache
+Demande "*" -up- "1" Adherent : effectuee par >
+Demande "*" -right- "1" Vache :  concerne >
+Demande "*" -down- "1" Paillette : type/taureau souhaite >
+
+' Acte effectif d'insémination
+Insemination "0..1" -right- "1" Demande : concretise >
+Insemination "*" -up- "1" Inseminateur : realisee par >
+Insemination "*" -down- "1" Paillette : utilise physiquement >
+
+@enduml
+```
+
+## **Mission 2 – MobiSemin (Android et Sécurité)**
+
+### **Question 2.1 :** Compléter les scénarios d’erreur du cas d’utilisation « Saisir une tournée » (**Document 4**) concernant la saisie des kilomètres d’une tournée.
+
+- **3.b** : Le kilométrage de début de tournée saisi est **inférieur** au kilométrage de fin de la dernière tournée enregistrée pour ce véhicule. Le système affiche une erreur.
+- **4.b** : Le kilométrage de fin de tournée saisi est **inférieur** au kilométrage de début. Le système informe l'utilisateur et bloque la validation.
+
+### **Question 2.2 :** Compléter la méthode `onCreate()` de la classe `MobiDb` (**Document 7**)
+
+```sql
+//Table histoKm
+strReq="CREATE TABLE histoKm(id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT, kmDebut INTEGER, kmFin INTEGER, idInsemin INTEGER, idVehicule INTEGER, FOREIGN KEY(idInsemin) REFERENCES inseminateur(id), FOREIGN KEY(idVehicule) REFERENCES vehicule(id))";
+db.execSQL(strReq);
+```
+
+### **Question 2.3 (Analyse des risques et DICP) :** En cas de perte ou de vol de l’ordiphone d’un inséminateur, évaluez les risques pesant sur la base de données locale `SQLite` au regard des critères de **Confidentialité** et d'**Intégrité** (matrice DICP). Proposez au moins une solution technique ou organisationnelle (ex: MDM, chiffrement) de protection des données sur cet appareil mobile.
+
+- **Confidentialité** : Les données de la base SQLite locale (Adhérents, adresses) sont stockées en clair. N'importe qui peut lire le fichier base de données.
+- **Intégrité** : Le voleur pourrait modifier les kilomètres ou les données des inséminations sur l'appareil avant toute synchronisation.
+- **Solution** : Chiffrement du fichier de base de données SQLite (ex: avec la bibliothèque SQLCipher) + Utilisation d'un MDM (Mobile Device Management) pour permettre l'effacement à distance des données de l'appareil.
+
+### **Question 2.4 (Vulnérabilité OWASP) :** L’analyse du code métier (Document 10) indique la présence de l’attribut `private String password;` au sein de la classe `Inseminateur`. Expliquez en quoi le stockage ou la transmission de cette donnée en clair représente une faille critique. Que recommandez-vous de mettre en place pour sécuriser la phase d’authentification ?
+
+- **Faille** : Le mot de passe stocké (`String password`) transite en clair dans la mémoire de l'application et sur le réseau. C'est une vulnérabilité critique d'Identification et d'Authentification (A07:2021).
+- **Recommandation** : Ne jamais stocker de mots de passe en clair. Utiliser une API sécurisée en HTTPS et ne conserver sur le téléphone qu'un **Token d'authentification** (ex: JWT) temporaire.
+
+## **Mission 3 – Gestion des tournées des inséminateurs**
+
+### **3.1.1** Expliquer le mécanisme qui permet de différencier les deux méthodes de même nom (`CATournee`) de la classe `GestionTournee`.
+
+C'est le mécanisme de **surcharge de méthode** (Overloading) en Programmation Orientée Objet. Les deux méthodes portent le même nom, mais ont une **signature différente** (différents paramètres d'entrée). Le compilateur sait laquelle appeler en fonction de ce qu'on lui donne (ou ne lui donne pas).
+
+### **3.1.2** Écrire la méthode `getCoordGPS()` de la classe `Adherent` qui renvoie les coordonnées GPS (latitude et longitude) sous la forme d’une chaîne de caractères.
+
+```java
+public String getCoordGPS() {
+    return this.latitude + " " + this.longitude;
+}
+```
+
+### **3.1.3** Écrire le code de la méthode `getAdherents()` de la classe `GestionTournee`.
+
+```java
+public ArrayList<Adherent> getAdherents() {
+    ArrayList<Adherent> listeUniques = new ArrayList<>();
+    for (Visite v : laTournee.getLesVisites()) {
+        Adherent a = v.getLeAdherent();
+        // Vérification pour ne pas ajouter le même adhérent deux fois
+        if (!listeUniques.contains(a)) {
+            listeUniques.add(a);
+        }
+    }
+    return listeUniques;
+}
+```
+
+### **3.1.4** Écrire le code de la méthode `montantAFacturer()` de la classe `Visite`.
+
+```java
+public float montantAFacturer() {
+    float total = 0;
+    for (PrestationVisite pv : lesPrestationsVisite) {
+        total += pv.getNombreActes() * pv.getLeTypePrestation().getPrixForfaitaire();
+    }
+    return total;
+}
+```
+
+### **Question 3.2 :** Compléter les tests unitaires correspondants à la méthode `CATournee()` de la classe `GestionTourneeTest` (**Document 11**) en respectant le scénario fourni par le chef de projet (**Document 13**) et en respectant la syntaxe utilisée.
+
+```java
+@Test
+public void testCATournee() {
+    // CA initial nul
+    assertEquals(0.0f, gt.CATournee(), 0.0);
+
+    // Visite 1 : 3 inséminations (3*100) + 1 écho (1*10) = 310
+    gt.ajouterVisite(v1);
+    assertEquals(310.0f, gt.CATournee(), 0.0);
+
+    // Visite 2 : 1 insémination (1*100) = 100. Total = 310 + 100 = 410
+    gt.ajouterVisite(v2);
+    assertEquals(410.0f, gt.CATournee(), 0.0);
+}
+```
+
+### **Question 3.3 (Cybersécurité des API) :** La synchronisation des tournées entre l’application `MobiSemin` et le serveur `LogiSemin` se fait via le réseau Internet. Décrivez une attaque possible visant à intercepter ou altérer ces données en transit (Man-in-the-Middle) et indiquez le protocole standard à exiger côté serveur pour chiffrer ces échanges.
+
+- **L'attaque** : Sur un réseau non sécurisé (ex: wifi public), un pirate peut intercepter silencieusement les données qui circulent entre le smartphone MobiSemin et le serveur LogiSemin. S'il n'y a pas de chiffrement, il peut lire ou modifier ces données (Man-in-the-Middle).
+- **Protocole standard** : Il faut imposer des échanges chiffrés avec le protocole **HTTPS** (s'appuyant technologiquement sur **TLS**).

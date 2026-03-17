@@ -1,0 +1,73 @@
+= Cas Coopain : Mobilité, ORM et Tests Métiers
+:toc:
+:toc-title: Sommaire
+:sectnums:
+
+== Détaillez les règles de gestion liées à la traçabilité des informations imprimées sur une paillette de semence.
+
+La traçabilité d'une paillette est extrêmement stricte et permet de remonter toute la chaîne de production. Elle comporte :
+
+* *L'animal producteur* : Numéro national, nom, race et numéro d'Institut de l'Élevage.
+* *Le prélèvement* : La date précise de l'acte et le numéro du lot de semence.
+* *Le laboratoire* : Le numéro d'agrément du Centre de Collecte (CCS).
+
+Pour garantir l'intégrité et faciliter la saisie rapide par les inséminateurs, ces informations sont systématiquement doublées par un *code-barres (Type 128 CRT)*.
+
+== Expliquez le choix technologique de SQLite pour le stockage des données sur l’application mobile MobiSemin.
+
+`SQLite` est le standard mondial de la mobilité car c’est un moteur de base de données embarqué. Il ne nécessite pas de serveur complexe tournant en arrière-plan.
+
+Toute la base (tables, index, vues) est contenue dans un seul fichier local, ce qui est idéal pour un inséminateur travaillant en zone rurale sans réseau.
+
+== Quels sont les risques pesant sur l’intégrité et la confidentialité des données en cas de perte de l’ordiphone (Smartphone) ?
+
+* *Confidentialité (DICP)* : Par défaut, le fichier SQLite de MobiSemin est lisible en clair. Le voleur peut extraire les bases de données et accéder aux noms, numéros et adresses GPS des 5 000 adhérents sans aucun mot de passe.
+* *Intégrité (DICP)* : Un pirate pourrait manipuler la base locale avant la prochaine synchronisation réseau pour falsifier les données (ex. : altérer les actes saisis ou modifier la facturation).
+
+== Pourquoi le stockage des mots de passe en clair est-il proscrit et quelle solution technique doit être mise en œuvre ?
+
+Stocker un mot de passe en clair dans la classe `Inseminateur` correspond à la vulnérabilité A07 de l'OWASP (Problèmes d'identification et d'authentification). N'importe quel développeur, attaquant réseau ou intrus manipulant la base de données peut utiliser ce mot de passe pour usurper l'identité de l'agent.
+
+*Solution* : Le système central doit hacher les mots de passe (ex. : algorithme Bcrypt) avec un grain de sel. L'application mobile ne sauvegarde rien en dur, mais reçoit un *Token JWT* temporaire après s'être identifiée via HTTPS.
+
+== Décrivez le mécanisme d’une attaque de type "Man-in-the-Middle" lors de la synchronisation entre le mobile et le serveur.
+
+Lors de la synchronisation réseau en fin de journée, si l'inséminateur est connecté sur un réseau non sécurisé (Wi-Fi public), un attaquant peut intercepter les communications entre MobiSemin et le serveur LogiSemin. Le pirate agit comme un "relais" invisible (l'Homme au milieu) : il lit ou altère les données de facturation des tournées en temps réel.
+
+== Expliquez les bénéfices d’un framework ORM comme Hibernate pour la persistance des objets métiers dans ce projet.
+
+Hibernate transforme automatiquement nos objets Java en tables MySQL et inversement.
+
+* *Productivité* : Plus besoin d'écrire des requêtes SQL (`SELECT`, `INSERT`). On manipule directement le code métier avec `tournee.ajouterVisite(v)`.
+* *Sécurité* : Les failles d'injections SQL disparaissent car Hibernate gère nativement les `PreparedStatement`.
+* *Indépendance* : Si la coopérative abandonne MySQL pour un autre système (Oracle, PostgreSQL), les classes métiers Java n'ont pas à être modifiées, seule une ligne de configuration Hibernate change (le "Dialect").
+
+== Comment le mécanisme de surcharge de méthode est-il utilisé pour calculer le chiffre d’affaires d’une tournée ?
+
+La surcharge (Overloading) de la classe `GestionTournee` permet de déclarer deux méthodes qui portent exactement le même nom : `CATournee`.
+
+* La première ne prend *aucun argument* et renvoie le CA global de toutes les tournées.
+* La seconde prend un argument (`TypePrestation tp`) et renvoie le CA filtré sur ce type seulement.
+
+En Java, le compilateur choisit automatiquement la bonne méthode à exécuter selon si le développeur lui passe un argument ou non.
+
+== Quel est le rôle de l’annotation `@BeforeEach` dans l’organisation des tests unitaires JUnit 5 ?
+
+Dans la classe de test `GestionTourneeTest`, la méthode marquée `@BeforeEach` sert à "réinitialiser automatiquement" avant chaque nouveau scénario de test (ceux marqués par `@Test`).
+
+Cela permet de recréer une tournée vide, de remettre les coûts horaires à zéro, et garantit que l'exécution d'un test n'impactera ou ne faussera pas mathématiquement le test suivant. C'est l'un des piliers des tests unitaires (l'isolation).
+
+== Pourquoi est-il nécessaire de tester spécifiquement le cas d’une visite avec un nombre d’actes égal à zéro ?
+
+Ce test garantit la robustesse (ou le caractère "anti-fragile") de l'application. Face à une erreur de saisie, le système reste stable et la logique de facturation est parfaitement préservée.
+
+* *Anticipation de l'erreur humaine* : Face à la réalité du terrain, une faute de frappe est vite arrivée (par exemple, un utilisateur fatigué saisissant "0" au lieu de "1").
+* *Protection du cœur de métier (la facturation)* : Si cette anomalie n'était pas gérée, elle pourrait provoquer un crash de l'application ou, plus grave encore, corrompre la facture du client. Ce test prouve que le logiciel réagit de manière sécurisée : il ignore tout simplement l'acte nul, protégeant ainsi l'intégrité des données et le chiffre d'affaires.
+
+== Expliquez comment l’interface JavaFX communique avec la classe `ApiService` pour récupérer les données en temps réel.
+
+C'est un travail d'équipe en 3 étapes au moment où la fenêtre s'ouvre :
+
+1. *L'Écran (La Vue FXML)* s'affiche.
+2. *Le Cerveau (Le Contrôleur Java)* s’active grâce à la méthode `initialize()`. Il se rend compte que la liste déroulante des prestations est vide.
+3. *L'Appel (ApiService)* : Le contrôleur fait alors appel à l'outil d'accès aux données (`ApiService` / Hibernate) et demande : "Donne-moi tous les types de prestations". La base de données lui renvoie la liste (Insémination, Échographie, etc.). Le contrôleur prend cette liste et va l'insérer directement dans le menu déroulant sur l'écran.
