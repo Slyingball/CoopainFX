@@ -1,0 +1,142 @@
+= Correction Personnalisée - TP Étude de Cas Coopain
+:author: Correction pour M. Terence Mardon
+:toc: left
+:toc-title: Sommaire
+:icons: font
+
+Bonjour M. Mardon.
+
+Le travail fourni sur l'étude de cas Coopain est correct pour les missions traitées. L'analyse des données, le requêtage SQL, le code Java et la synthèse théorique sont conformes aux attentes.
+
+Voici le détail factuel de la correction.
+
+---
+
+== Mission 1 : Gestion des demandes d'insémination
+
+=== Question 1.1 — Règle de gestion
+**Votre réponse :** Sélection de la date la plus ancienne (`MIN`) dans le stock disponible (`stockRestant >= 1`).
+
+[NOTE]
+.Évaluation - Validé
+====
+La déduction est correcte (règle du Premier Entré, Premier Sort - FIFO). La condition de stock disponible est bien prise en compte.
+====
+
+=== Question 1.2 — Provenance des informations
+**Votre réponse :** Liste des champs avec sources et transformations.
+
+[WARNING]
+.Remarque - Oubli
+====
+L'analyse des sources et transformations est juste pour les éléments cités (notamment le calcul du quantième). Cependant, vous avez totalement omis le champ "Code à barres" dans votre analyse, qui nécessitait une concaténation de plusieurs données.
+====
+
+=== Questions 1.3 et 1.4 — Requêtes SQL (Tarifs et Stocks)
+**Votre réponse :** Requêtes avec jointures et fonctions d'agrégation (`SUM`).
+
+[NOTE]
+.Évaluation - Validé
+====
+Les syntaxes SQL sont correctes. L'utilisation d'un `LEFT JOIN` pour la question 1.4 est une approche rigoureuse permettant d'afficher les taureaux dont le stock est épuisé. À reproduire en Edc BTS.
+====
+
+=== Question 1.5 — Modèle relationnel
+**Votre réponse :** Diagramme de classes PlantUML avec séparation des concepts de Demande et d'Insémination.
+
+[NOTE]
+.Évaluation - Conforme
+====
+La modélisation UML fournie est pertinente. La création d'une entité distincte pour l'acte effectif d'insémination est une alternative d'architecture métier acceptable.
+====
+
+== Mission 2 : Nouvelles fonctionnalités (MobiSemin)
+
+=== Question 2.1 — Scénarios d'erreur
+**Votre réponse :** Scénarios 3.b et 4.b sur l'incohérence des kilométrages.
+
+[NOTE]
+.Évaluation - Validé
+====
+Ces scénarios alternatifs d'erreur métier sont pertinents et couvrent bien les risques de saisie.
+====
+
+=== Question 2.2 — Base de données SQLite (`onCreate`)
+**Votre réponse :** Instruction `CREATE TABLE histoKm`.
+
+[WARNING]
+.Remarque - Incomplet
+====
+La définition de la table `histoKm` avec ses clés primaires et étrangères est exacte.
+====
+
+=== Questions 2.3 et 2.4 — Cybersécurité (DICP et OWASP)
+**Votre réponse :** SQLCipher, MDM, HTTPS et Token JWT.
+
+[NOTE]
+.Évaluation - Validé
+====
+L'analyse des risques est factuelle. Les solutions de remédiation (chiffrement local, effacement à distance, HTTPS) correspondent aux standards attendus. L'évocation du Token JWT pour sécuriser l'API est techniquement juste.
+====
+
+== Mission 3 : Gestion des tournées des inséminateurs
+
+=== Question 3.1 — Programmation Orientée Objet
+**Vos réponses :** Surcharge, méthodes `getCoordGPS`, `getAdherents` et `montantAFacturer`.
+
+[NOTE]
+.Évaluation - Validé
+====
+* **Surcharge :** L'explication sur la différence de signature est exacte.
+* **Algorithmique :** L'utilisation de `!listeUniques.contains(a)` pour éviter les doublons est bien implémentée. À reproduire en Edc BTS.
+* **Navigation inter-classes :** L'appel en chaîne pour le calcul du montant est correct.
+====
+
+=== Question 3.2 — Tests unitaires (JUnit)
+**Votre réponse :** Complétion des assertions du test `testCATournee`.
+
+[NOTE]
+.Évaluation - Conforme
+====
+Le scénario de test respecte les exigences métier et les calculs attendus sont vérifiés (0.0, 310.0, 410.0).
+====
+
+=== Question 3.3 — Cybersécurité des API (MITM)
+**Votre réponse :** Interception sur réseau non sécurisé, contrée par HTTPS (TLS).
+
+[NOTE]
+.Évaluation - Validé
+====
+Le mécanisme de l'attaque et le protocole de sécurisation sont bien identifiés.
+====
+
+---
+
+== Questions de synthèse
+
+**Vos réponses :** Document séparé traitant les 10 questions théoriques (Traçabilité, SQLite, DICP, OWASP, MITM, ORM Hibernate, Surcharge, JUnit, robustesse, architecture JavaFX).
+
+[NOTE]
+.Évaluation - Conforme et détaillé
+====
+L'ensemble des concepts théoriques est défini de manière exacte et factuelle.
+Plusieurs points démontrent une bonne assimilation :
+* La mention du "Code-barres Type 128 CRT" pour la traçabilité.
+* L'identification de la vulnérabilité OWASP A07 concernant les mots de passe.
+* L'explication du rôle de l'ORM Hibernate (PreparedStatement natives, Dialect).
+
+*Point d'attention :* Ces concepts devront être expliqués et justifiés par vos soins lors de l'oral.
+====
+
+== Conclusion
+
+Note estimée : **18 / 20**
+
+Bonne maitrise des outils, de l'IA et bonne autonomie.
+
+Le travail écrit (SQL, Java de base, analyse théorique) est rigoureux. Il faut confirmer en Etude de cas épreuve BTS en prenant du recul ET en connaissant les fondamentaux.
+
+Pour valider définitivement vos compétences sur cette étude de cas, vous devez :
+
+- Travailler les notions de base
+- Prendre du recul sur les réponses IA
